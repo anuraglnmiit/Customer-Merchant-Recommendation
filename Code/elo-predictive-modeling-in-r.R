@@ -26,6 +26,22 @@ names(htrans)[names(htrans) == 'card_id'] <- 'card'
 View(head(htrans))
 
 
+fn <- funs(sum, mean, min, max, sd, n_distinct, .args = list(na.rm = TRUE))
+htrans$authorized_flag <- ifelse(htrans$authorized_flag == "Y",1,0)
+
+hist_summary <- htrans %>%
+    group_by(card_id) %>% 
+    select(c("card_id","purchase_amount","month_lag","installments","authorized_flag")) %>%
+    summarize_all(fn) %>%
+    left_join(hist_summary2,by="card_id") %>%
+    left_join(hist_summary3,by="card_id") %>%
+    left_join(hist_cat1,by="card_id") %>%
+    left_join(hist_cat2[,-7],by="card_id") %>%
+    left_join(hist_cat3[,-5],by="card_id") 
+
+head(htrans)
+
+
 
 # historical transaction proportional distribution authorisation flag
 table(htrans$authorized_flag)
